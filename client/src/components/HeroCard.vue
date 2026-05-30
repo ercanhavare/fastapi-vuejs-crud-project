@@ -5,7 +5,7 @@
          <p class="text-sm text-gray-600">Age: {{ hero.age }}</p>
 
             <div class="flex gap-2 mt-2">
-                <button class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600" v-on:click="()=>{emits('edit', hero.id)}">Edit</button>
+                <button class="bg-blue-400 text-white px-3 py-1 rounded hover:bg-blue-600" v-on:click="()=>{emits('edit', hero)}">Edit</button>
                 <button class="bg-red-400 text-white px-3 py-1 rounded hover:bg-red-600" v-on:click="()=>{emits('delete', hero.id)}">Delete</button>
             </div>
     </div>

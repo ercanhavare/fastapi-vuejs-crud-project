@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {ref, onMounted} from 'vue'
-import HeroModel from './components/HeroModel.vue';
+import HeroModal from './components/HeroModal.vue';
 import HeroCard from './components/HeroCard.vue';
 import { Hero } from './components/types.js';
 
@@ -10,6 +10,7 @@ import { Hero } from './components/types.js';
  */
 const loading = ref<boolean>(false);
 const error = ref<string | null>(null);
+const selectedHero = ref<Hero | null>(null);
 const showModal = ref<boolean>(false);
 const heroes = ref<Hero[]>([]);
 
@@ -53,21 +54,23 @@ const handleDelete = async (id: number) => {
   }
 }
 
-/**
- * handleEdit for updating a hero in the list. This function is called when a hero is edited from the HeroCard component. It updates the hero in the heroes array based on the id.  
- */
-const handleEdit = async (updatedHero: Hero) => {
-  const index = heroes.value.findIndex(hero => hero.id === updatedHero.id);
-  if (index !== -1) {
-    heroes.value[index] = updatedHero;
-  }
-}
 
 /**
- * handleSave for adding a new hero to the list. This function is called when a new hero is saved from the HeroModel component.
+ * handleSave for updating the hero list after a hero is created or updated. This function is called when a hero is saved from the HeroModal component.
+ * @param hero 
  */
 const handleSave = (hero: Hero) => {
-  heroes.value.push(hero);
+
+  if (selectedHero.value) {
+    const index = heroes.value.findIndex((h) => h.id === selectedHero.value?.id);
+
+    if (index !== -1) {
+      heroes.value[index] = hero;
+    }
+  } else {
+    heroes.value.push(hero);
+  }
+
   showModal.value = false;
 }
 
@@ -83,14 +86,14 @@ onMounted(() => {
   <div class="p-6 mx-w-4xl mx">
     <header class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold text-indigo-700"> Hero's Journey</h1>
-      <button class="bg-indigo-700 text-white px-4 py-2 rounded shadow" v-on:click="()=>{showModal = true}">Add Hero</button>
+      <button class="bg-indigo-700 text-white px-4 py-2 rounded shadow" v-on:click="()=>{ selectedHero = null; showModal = true; }">Add Hero</button>
     </header>
 
     <div class="grid grid-cols-1 sm:gid-cols-2 lg:grid-cols-3 gap-4">
-      <HeroCard v-for="hero in heroes" v-bind:key="hero.id" :hero="hero" v-on:delete="handleDelete" v-on:edit="handleEdit"/>
+      <HeroCard v-for="hero in heroes" v-bind:key="hero.id" :hero="hero" v-on:delete="handleDelete" v-on:edit="(h)=>{showModal = true; selectedHero = h}"/>
     </div>
 
-    <HeroModel v-if="showModal" v-on:close="()=>{showModal = false}" v-on:saved="handleSave"/>
+    <HeroModal v-if="showModal" v-bind:hero="selectedHero" v-on:close="()=>{ showModal = false; selectedHero = null; }" v-on:saved="handleSave"/>
   </div>
 
 </template>
