@@ -20,7 +20,7 @@ const secretName = ref<string>('');
 /**
  * Emits the 'close' event to notify the parent component to close the modal
  */
-const emits = defineEmits(['close', 'saved']);
+const emits = defineEmits(['close', 'saved', 'error']);
 
 /**
  * Watch for changes in the hero prop to populate the form fields when editing an existing hero. If the hero prop is null, it means we are creating a new hero, so we reset the form fields to empty values.
@@ -79,6 +79,7 @@ const save=async () => {
     emits('saved', result);
     emits('close');
    } catch (err: any) {
+       emits('error', err.message || 'Failed to save hero.');
        console.error('Error saving hero:', err.message);
    }
 
@@ -86,20 +87,46 @@ const save=async () => {
 
 </script>
 <template>
-    <div class="fixed inset-0 bg-black opacity-30 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg space-y-4">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+        <div class="w-full max-w-xl rounded-[28px] bg-white p-8 shadow-2xl ring-1 ring-slate-200">
 
-            <h2 class="text-2xl font-bold mb-2 text-indigo-700">{{ props.hero ? 'Edit Hero' : 'Add Hero' }}</h2>
+            <div class="mb-6 flex items-start justify-between gap-4">
+                <div>
+                    <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6">
+                            <path d="M12 2a7 7 0 00-7 7v3c0 2.93 2.42 5.32 5.4 5.48a1 1 0 01.95.97V21h2v-2.55a1 1 0 01.95-.97A7.001 7.001 0 0019 12V9a7 7 0 00-7-7zm0 2a5 5 0 015 5v3a5 5 0 11-10 0V9a5 5 0 015-5z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-semibold tracking-tight text-slate-900">{{ props.hero ? 'Edit Hero' : 'Add Hero' }}</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-500">{{ props.hero ? 'Update the hero details and save changes.' : 'Create a new hero profile and add it to the list.' }}</p>
+                </div>
+                <button class="h-11 w-11 rounded-2xl border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100" @click="emits('close')" aria-label="Close modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5">
+                        <path d="M18.3 5.71a1 1 0 00-1.42 0L12 10.59 7.12 5.7A1 1 0 105.7 7.12L10.59 12l-4.88 4.88a1 1 0 001.42 1.42L12 13.41l4.88 4.89a1 1 0 001.42-1.42L13.41 12l4.89-4.88a1 1 0 000-1.41z" />
+                    </svg>
+                </button>
+            </div>
 
-            <input class="w-full p-2 border rounded-lg" type="text" placeholder="Hero Name" v-model="name"/>
+            <div class="space-y-4">
+                <label class="block text-sm font-medium text-slate-700">
+                    Hero Name
+                    <input class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" type="text" placeholder="Enter hero name" v-model="name" />
+                </label>
 
-            <input class="w-full p-2 border rounded-lg" type="number" placeholder="Age (optional)" v-model="age"/>
+                <label class="block text-sm font-medium text-slate-700">
+                    Age
+                    <input class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" type="number" placeholder="Age (optional)" v-model="age" />
+                </label>
 
-            <input class="w-full p-2 border rounded-lg" type="text" placeholder="Secret Name" v-model="secretName"/>
+                <label class="block text-sm font-medium text-slate-700">
+                    Secret Name
+                    <input class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100" type="text" placeholder="Enter secret name" v-model="secretName" />
+                </label>
+            </div>
 
-            <div class="flex justify-end gap-3 pt-2">
-                <button class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" @click="emits('close')">Cancel</button>
-                 <button class="px-4 py-2 bg-indigo-700 text-white rounded hover:bg-indigo-800" @click="save">{{ props.hero ? 'Update' : 'Create' }}</button>
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" @click="emits('close')">Cancel</button>
+                <button class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" @click="save">{{ props.hero ? 'Update Hero' : 'Create Hero' }}</button>
             </div>
         </div>
     </div>

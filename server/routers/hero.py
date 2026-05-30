@@ -11,7 +11,7 @@ from schemas import CreateHero, ReadHero, UpdateHero
 router = APIRouter(prefix="/heroes", tags=["hero"])
 SessionDep = Annotated[Session, Depends(get_session)]
 
-@router.post("/", response_model=CreateHero)
+@router.post("/", response_model=ReadHero)
 def create(hero: CreateHero, session: SessionDep):
     return crud.create_hero(session, hero)
 
