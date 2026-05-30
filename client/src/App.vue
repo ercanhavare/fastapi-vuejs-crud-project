@@ -2,16 +2,8 @@
 
 import {ref, onMounted} from 'vue'
 import HeroModel from './components/HeroModel.vue';
-
-/**
- * Hero interface representing the structure of a hero object
- */
-interface Hero {
-  id: number;
-  name: string;
-  age?: number;
-  secret_name?: string;
-}
+import HeroCard from './components/HeroCard.vue';
+import { Hero } from './components/types.js';
 
 /**
  * State variables
@@ -41,6 +33,45 @@ const fetchHeroes = async () => {
 }
 
 /**
+ * handleDelete for removing a hero from the list. This function is called when a hero is deleted from the HeroCard component.
+ */
+const handleDelete = async (id: number) => {
+  try {
+    loading.value = true;
+    const response = await fetch(`http://localhost:8000/heroes/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+   heroes.value = heroes.value.filter(hero => hero.id !== id);
+  } catch (err: any) {
+    error.value = err.message;
+    console.error('Error deleting hero:', error.value);
+  } finally {
+    loading.value = false;
+  }
+}
+
+/**
+ * handleEdit for updating a hero in the list. This function is called when a hero is edited from the HeroCard component. It updates the hero in the heroes array based on the id.  
+ */
+const handleEdit = async (updatedHero: Hero) => {
+  const index = heroes.value.findIndex(hero => hero.id === updatedHero.id);
+  if (index !== -1) {
+    heroes.value[index] = updatedHero;
+  }
+}
+
+/**
+ * handleSave for adding a new hero to the list. This function is called when a new hero is saved from the HeroModel component.
+ */
+const handleSave = (hero: Hero) => {
+  heroes.value.push(hero);
+  showModal.value = false;
+}
+
+/**
  * Fetch heroes when the component is mounted
  */
 onMounted(() => {
@@ -56,10 +87,10 @@ onMounted(() => {
     </header>
 
     <div class="grid grid-cols-1 sm:gid-cols-2 lg:grid-cols-3 gap-4">
-      <div v-for="hero in heroes" v-bind:key="hero.id">{{ hero.name }}</div>
+      <HeroCard v-for="hero in heroes" v-bind:key="hero.id" :hero="hero" v-on:delete="handleDelete" v-on:edit="handleEdit"/>
     </div>
 
-    <HeroModel v-if="showModal" v-on:close="()=>{showModal = false}"/>
+    <HeroModel v-if="showModal" v-on:close="()=>{showModal = false}" v-on:saved="handleSave"/>
   </div>
 
 </template>

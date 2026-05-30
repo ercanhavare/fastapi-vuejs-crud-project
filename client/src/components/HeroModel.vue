@@ -12,7 +12,7 @@ const secretName = ref<string>('');
 /**
  * Emits the 'close' event to notify the parent component to close the modal
  */
-const emits = defineEmits(['close'])
+const emits = defineEmits(['close', 'saved']);
 
 /**
  * Saves the new hero data. In a real application, this would involve sending the data to the backend API.
@@ -37,7 +37,7 @@ const save=async () => {
             throw new Error(`HTTP error! status: ${response.status}`)
         }
         const result = await response.json();
-        console.log('Hero created:', result)
+       emits('saved', result);
    } catch (err: any) {
        console.error('Error creating hero:', err.message)
    }
